@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>XAUUSD News Analyzer</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1c1c1a;--mu:#6b6b64;--bd:#e3e1d8;--gold:#b8860b;--up:#1a7f4b;--dn:#c0392b;--nt:#777;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15150f;--card:#1f1f17;--tx:#f0efe6;--mu:#a3a296;--bd:#33332a;--gold:#e0b441;--up:#4cc98a;--dn:#ff7a6b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15150f;--card:#1f1f17;--tx:#f0efe6;--mu:#a3a296;--bd:#33332a;--gold:#e0b441;--up:#4cc98a;--dn:#ff7a6b;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 "Noto Sans Khmer",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.5rem;margin:0 0 4px;color:var(--gold)}
+.sub{color:var(--mu);margin:0 0 20px;font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+h2{font-size:1.05rem;margin:0 0 12px}
+label{display:block;font-size:.85rem;color:var(--mu);margin-bottom:4px}
+input,select,button{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:9px 10px;width:100%}
+button{background:var(--gold);color:#fff;border:0;font-weight:600;cursor:pointer;margin-top:12px}
+button.sec{background:transparent;color:var(--mu);border:1px solid var(--bd);margin-top:8px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.res{margin-top:14px;padding:14px;border-radius:10px;border:1px solid var(--bd);display:none}
+.big{font-size:1.4rem;font-weight:700}
+.up{color:var(--up)}.dn{color:var(--dn)}.nt{color:var(--nt)}
+.row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.9rem}
+.row:last-child{border:0}
+.warn{font-size:.8rem;color:var(--mu)}
+.tbl{overflow-x:auto}
+.cf select{width:128px;flex:none}
+</style>
+</head>
+<body>
+<main>
+<h1>🥇 XAUUSD News Analyzer</h1>
+<p class="sub">ឧបករណ៍វិភាគព័ត៌មានសេដ្ឋកិច្ចសម្រាប់ Gold (ឥតគិតថ្លៃ)</p>
+
+<div class="card">
+<h2>១. វិភាគលទ្ធផលព័ត៌មាន</h2>
+<label for="ev">ព័ត៌មាន</label>
+<select id="ev">
+<option value="1">CPI / Core CPI (ខ្ពស់ = USD ខ្លាំង)</option>
+<option value="1">Core PCE</option>
+<option value="1">NFP (Non-Farm Payrolls)</option>
+<option value="-1">Unemployment Rate (ខ្ពស់ = USD ខ្សោយ)</option>
+<option value="-1">Jobless Claims (ខ្ពស់ = USD ខ្សោយ)</option>
+<option value="1">Retail Sales</option>
+<option value="1">GDP</option>
+<option value="1">ISM / PMI</option>
+<option value="1">FOMC / Fed Rate (Hawkish = ខ្ពស់ជាងការព្យាករ)</option>
+</select>
+<div class="g" style="margin-top:12px">
+<div><label for="fc">Forecast</label><input id="fc" type="number" step="any" inputmode="decimal"></div>
+<div><label for="pv">Previous</label><input id="pv" type="number" step="any" inputmode="decimal"></div>
+<div><label for="ac">Actual</label><input id="ac" type="number" step="any" inputmode="decimal"></div>
+</div>
+<button id="go">វិភាគ</button>
+<div class="res" id="res"></div>
+</div>
+
+<div class="card">
+<h2>⏰ Pre-News Signal (5 នាទីមុនចេញ)</h2>
+<p class="warn" style="margin-top:0">ប្រើ Forecast/Previous និងប្រភេទព័ត៌មានពីផ្នែក ១។ បញ្ចូលម៉ោងចេញ និង High/Low 15 នាទីចុងក្រោយ។ ទុក tab នេះបើកចោល។</p>
+<div class="g">
+<div><label for="pt">ម៉ោងព័ត៌មានចេញ</label><input id="pt" type="datetime-local"></div>
+<div><label for="ph">High 15 នាទី ($)</label><input id="ph" type="number" step="any" inputmode="decimal"></div>
+<div><label for="pl">Low 15 នាទី ($)</label><input id="pl" type="number" step="any" inputmode="decimal"></div>
+<div><label for="pb">Buffer ($)</label><input id="pb" type="number" value="1" step="0.1"></div>
+</div>
+<button id="ps">ចាប់ផ្តើម Countdown</button>
+<div class="res" id="pres"></div>
+</div>
+
+<div class="card">
+<h2>២. គណនា Lot Size (Gold)</h2>
+<div class="g">
+<div><label for="bal">Balance ($)</label><input id="bal" type="number" value="1000"></div>
+<div><label for="rk">Risk (%)</label><input id="rk" type="number" value="1" step="0.1"></div>
+<div><label for="sl">Stop Loss ($ ចលនាតម្លៃ)</label><input id="sl" type="number" value="5" step="0.1"></div>
+</div>
+<button id="lot">គណនា</button>
+<div class="res" id="lotres"></div>
+<p class="warn">1 lot = 100 oz → តម្លៃផ្លាស់ប្តូរ $1 = ប្រាក់ $100 ក្នុង 1 lot។</p>
+</div>
+
+<div class="card">
+<h2>៣. កំណត់ត្រាព័ត៌មាន</h2>
+<div class="tbl" id="log"><p class="warn">មិនទាន់មានកំណត់ត្រា។</p></div>
+<button class="sec" id="clr">លុបកំណត់ត្រា</button>
+</div>
+
+<div class="card">
+<h2>ច្បាប់មូលដ្ឋាន Gold និង USD</h2>
+<div class="row"><span>ទិន្នន័យ USD ល្អជាងការព្យាករ</span><b class="dn">Gold ↓</b></div>
+<div class="row"><span>ទិន្នន័យ USD អាក្រក់ជាងការព្យាករ</span><b class="up">Gold ↑</b></div>
+<div class="row"><span>Fed Hawkish / Yield ឡើង</span><b class="dn">Gold ↓</b></div>
+<div class="row"><span>Fed Dovish / ហានិភ័យភូមិសាស្ត្រ</span><b class="up">Gold ↑</b></div>
+<p class="warn">⚠️ ឧបករណ៍នេះគ្រាន់តែជាជំនួយការវិភាគ មិនមែនជាដំបូន្មានវិនិយោគទេ។ ពេលព័ត៌មានចេញ spread និង slippage អាចធំ។ ត្រូវប្រើ Stop Loss ជានិច្ច។</p>
+</div>
+<div class="card">
+<h2>🧩 Strategy Confluence (14 យុទ្ធសាស្ត្រ)</h2>
+<p class="warn" style="margin-top:0">មើល chart ដោយខ្លួនឯង ហើយជ្រើស Bullish/Bearish តាមយុទ្ធសាស្ត្រនីមួយៗ (ទុក — បើមិនច្បាស់)។ ឧបករណ៍គណនា confluence, RR (Risk Management) និង Lot ឱ្យ។</p>
+<div id="cf" class="cf"></div>
+<label style="margin-top:10px"><input type="checkbox" id="cn" style="width:auto"> រួមបញ្ចូលលទ្ធផលព័ត៌មានចុងក្រោយ (ផ្នែក ១)</label>
+<div class="g" style="margin-top:12px">
+<div><label for="ce">Entry</label><input id="ce" type="number" step="any" inputmode="decimal"></div>
+<div><label for="cs">Stop Loss</label><input id="cs" type="number" step="any" inputmode="decimal"></div>
+<div><label for="ct">Take Profit</label><input id="ct" type="number" step="any" inputmode="decimal"></div>
+</div>
+<button id="cb">គណនា Confluence</button>
+<div class="res" id="cr"></div>
+</div>
+</main>
+<script>
+var $=function(i){return document.getElementById(i)};
+var log=[];
+try{log=JSON.parse(localStorage.getItem("xau_log")||"[]")}catch(e){log=[]}
+function save(){try{localStorage.setItem("xau_log",JSON.stringify(log))}catch(e){}}
+function render(){
+ if(!log.length){$("log").innerHTML='<p class="warn">មិនទាន់មានកំណត់ត្រា។</p>';return}
+ var h="";
+ log.slice().reverse().forEach(function(l){
+  h+='<div class="row"><span>'+l.t+' · '+l.n+' ('+l.a+' vs '+l.f+')</span><b class="'+l.c+'">'+l.b+'</b></div>'});
+ $("log").innerHTML=h;
+}
+$("go").onclick=function(){
+ var f=parseFloat($("fc").value),a=parseFloat($("ac").value),p=parseFloat($("pv").value);
+ var r=$("res");r.style.display="block";
+ if(isNaN(f)||isNaN(a)){r.innerHTML="សូមបញ្ចូល Forecast និង Actual។";return}
+ var dir=parseFloat($("ev").value);
+ var dev=f===0?(a-f):(a-f)/Math.abs(f)*100;
+ var usd=dir*dev; // >0 = USD strong
+ var abs=Math.abs(usd);
+ var str=abs<0.3?"ខ្សោយ":abs<1.5?"មធ្យម":"ខ្លាំង";
+ var b,c;
+ if(abs<0.05){b="Neutral";c="nt"}
+ else if(usd>0){b="Gold Bearish ↓";c="dn"}
+ else{b="Gold Bullish ↑";c="up"}
+ var trend="";
+ if(!isNaN(p)){trend="<br>ធៀបនឹង Previous: "+(a>p?"ឡើង":a<p?"ចុះ":"ស្មើ")+" ("+p+" → "+a+")"}
+ var tip=c==="nt"?"លទ្ធផលជិត Forecast — ទីផ្សារអាចមិនមានទិសដៅច្បាស់ ចាំមើល price action។":
+  "ទិសដៅដែលរំពឹង៖ "+(c==="up"?"រង់ចាំ pullback ហើយ Buy":"រង់ចាំ pullback ហើយ Sell")+" · កុំចូលភ្លាមៗក្នុងរយៈ 1–5 នាទីដំបូង។";
+ r.innerHTML='<div class="big '+c+'">'+b+'</div>កម្លាំងសញ្ញា៖ <b>'+str+'</b> · គម្លាតពី Forecast៖ '+dev.toFixed(2)+(f===0?"":"%")+trend+'<br><span class="warn">'+tip+'</span>';
+ var n=$("ev").options[$("ev").selectedIndex].text.split(" (")[0];
+ log.push({t:new Date().toLocaleDateString(),n:n,a:a,f:f,b:b,c:c});
+ if(log.length>30)log.shift();
+ save();render();
+};
+$("lot").onclick=function(){
+ var bal=parseFloat($("bal").value),rk=parseFloat($("rk").value),sl=parseFloat($("sl").value);
+ var r=$("lotres");r.style.display="block";
+ if(!(bal>0&&rk>0&&sl>0)){r.innerHTML="សូមបញ្ចូលតម្លៃឱ្យត្រឹមត្រូវ។";return}
+ var risk=bal*rk/100,lot=risk/(sl*100);
+ r.innerHTML="ហានិភ័យ៖ <b>$"+risk.toFixed(2)+"</b><br>Lot Size ដែលសមស្រប៖ <div class='big' style='color:var(--gold)'>"+lot.toFixed(2)+" lot</div>";
+};
+$("clr").onclick=function(){log=[];save();render()};
+var tm=null,fired=false;
+function beep(){try{var C=window.AudioContext||window.webkitAudioContext,x=new C(),o=x.createOscillator();o.connect(x.destination);o.frequency.value=880;o.start();setTimeout(function(){o.stop()},600)}catch(e){}}
+function plan(){
+ var hi=parseFloat($("ph").value),lo=parseFloat($("pl").value),bf=parseFloat($("pb").value)||0;
+ var f=parseFloat($("fc").value),p=parseFloat($("pv").value),dir=parseFloat($("ev").value);
+ var lean="មិនអាចកំណត់";
+ if(!isNaN(f)&&!isNaN(p)){var e=dir*(f-p);lean=e>0?"ទីផ្សាររំពឹង USD ខ្លាំង (Gold ចុះបន្តិច) — ប៉ុន្តែ priced-in ហើយ":e<0?"ទីផ្សាររំពឹង USD ខ្សោយ (Gold ឡើងបន្តិច) — ប៉ុន្តែ priced-in ហើយ":"Forecast ស្មើ Previous — គ្មាន bias"}
+ var h='<div class="big nt">🚨 សញ្ញា៖ WAIT (កុំចូលមុនព័ត៌មាន)</div>មតិរំពឹងទុក៖ '+lean+'<br>';
+ if(!isNaN(hi)&&!isNaN(lo)&&hi>lo){
+  var bs=hi+bf,ss=lo-bf,mid=(hi+lo)/2;
+  h+='<div class="row"><span>Buy Stop</span><b class="up">'+bs.toFixed(2)+'</b></div><div class="row"><span>Sell Stop</span><b class="dn">'+ss.toFixed(2)+'</b></div><div class="row"><span>SL (ទាំងពីរ)</span><b>'+mid.toFixed(2)+'</b></div>';
+ }
+ h+='<p class="warn">• ដាក់ OCO: ពេលមួយ trigger លុបមួយទៀត<br>• ប្រើ lot ≤ ពាក់កណ្តាលធម្មតា (spread/slippage ធំ)<br>• បើមិន trigger ក្នុង 5 នាទី → លុប order<br>• Fake breakout កើតញឹកញាប់ — កុំ revenge trade<br>• បន្ទាប់ពីចេញ សូមប្រើផ្នែក ១ ដើម្បីបញ្ជាក់ទិសដៅ</p>';
+ return h;
+}
+$("ps").onclick=function(){
+ var v=$("pt").value,r=$("pres");r.style.display="block";
+ if(!v){r.innerHTML="សូមជ្រើសម៉ោងព័ត៌មានចេញ។";return}
+ var t=new Date(v).getTime();fired=false;clearInterval(tm);
+ function tick(){
+  var d=t-Date.now();
+  if(d<=0){clearInterval(tm);r.innerHTML='<div class="big" style="color:var(--gold)">📰 ព័ត៌មានចេញហើយ</div>បញ្ចូល Actual នៅផ្នែក ១ ដើម្បីវិភាគ។';return}
+  if(d<=300000){
+   if(!fired){fired=true;beep();}
+   var m=Math.floor(d/60000),s=Math.floor(d%60000/1000);
+   r.innerHTML='<div class="big dn">⏱ '+m+':'+(s<10?'0':'')+s+'</div>'+plan();
+  }else{
+   var m2=Math.floor((d-300000)/60000),s2=Math.floor((d-300000)%60000/1000);
+   r.innerHTML='រង់ចាំសញ្ញា 5 នាទីមុន៖ <b>'+m2+' នាទី '+s2+' វិនាទី</b>';
+  }
+ }
+ tick();tm=setInterval(tick,1000);
+};
+var S=[['SMC','BOS/CHoCH + Order Block/FVG'],['ICT','Killzone + Liquidity sweep + Premium/Discount'],['Wyckoff','Spring/Upthrust, Accumulation/Distribution'],['Elliott Wave','Wave 3/5 ឬចប់ ABC'],['Price Action','Pin bar/Engulfing នៅ key level'],['VSA','No Supply/No Demand, Stopping Volume'],['Supply & Demand','Fresh zone មាន reaction'],['Breakout & Retest','Break + Retest ជោគជ័យ'],['Volume Profile','តម្លៃធៀប POC/VAH/VAL'],['Harmonic','Pattern ចប់នៅ PRZ'],['Trend Following','EMA 50/200 + HTF trend'],['Liquidity','Sweep equal highs/lows ហើយបញ្ច្រាស'],['Indicators','RSI/MACD ស្របគ្នា'],['Order Flow','Delta/Absorption/Footprint']];
+(function(){var h='';S.forEach(function(s,i){h+='<div class=row><span><b>'+s[0]+'</b><br><span class=warn>'+s[1]+'</span></span><select id=s'+i+'><option value=0>—</option><option value=1>Bullish ↑</option><option value=-1>Bearish ↓</option></select></div>'});$('cf').innerHTML=h})();
+$('cb').onclick=function(){
+ var bu=0,be=0;
+ S.forEach(function(s,i){var v=+$('s'+i).value;if(v>0)bu++;else if(v<0)be++});
+ if($('cn').checked&&log.length){var lb=log[log.length-1].b;if(lb.indexOf('Bullish')>-1)bu++;else if(lb.indexOf('Bearish')>-1)be++}
+ var n=bu+be,r=$('cr');r.style.display='block';
+ if(n<3){r.innerHTML='ជ្រើសយ៉ាងតិច 3 យុទ្ធសាស្ត្រ។';return}
+ var buy=bu>=be,mx=Math.max(bu,be),pc=Math.round(mx/n*100);
+ var en=parseFloat($('ce').value),sl=parseFloat($('cs').value),tp=parseFloat($('ct').value);
+ var ok=!isNaN(en)&&!isNaN(sl)&&!isNaN(tp)&&(buy?(sl<en&&en<tp):(tp<en&&en<sl));
+ var rr=ok?Math.abs(tp-en)/Math.abs(en-sl):0;
+ var tier=bu===be?0:(n>=7&&pc>=70?2:(n>=4&&pc>=60?1:(pc>50?0.5:0)));
+ var filled=!isNaN(en)&&!isNaN(sl)&&!isNaN(tp);
+ var go=tier>0&&(!filled||(ok&&rr>=1.5));
+ var strong=tier>0;
+ var x='<div class=row><span>កម្រិតសញ្ញា</span><b>'+(tier===2?'Strong 💪 (Lot 100%)':tier===1?'Normal 👍 (Lot 70%)':tier===0.5?'Weak ⚠️ (Lot 50%)':'គ្មានសញ្ញា')+'</b></div>';
+ if(tier===0)x+='<p class=warn>• Bullish/Bearish ស្មើគ្នា ឬទាបពេក — រង់ចាំ</p>';
+ if(filled&&ok&&rr<1.5)x+='<p class=warn>• RR ទាប (&lt;1:1.5) — ដំឡើង TP ឬបន្ថយ SL</p>';
+ var c=go?(buy?'up':'dn'):'nt';
+ var t=go?(buy?'BUY Setup ✅':'SELL Setup ✅'):'WAIT ⏳';
+ var h='<div class='+c+' style=font-size:1.4rem;font-weight:700>'+t+'</div>Bullish '+bu+' · Bearish '+be+' · Confluence <b>'+pc+'%</b> ('+n+' ចម្លើយ)<br>';
+ if(false)h+='• Confluence មិនគ្រប់ (ត្រូវ ≥70% និង ≥7 យុទ្ធសាស្ត្រ)<br>';
+ if(!ok)h+='• បញ្ចូល Entry/SL/TP ឱ្យត្រូវទិសដៅ<br>';
+ else if(false)h+='• RR = 1:'+rr.toFixed(2)+' ទាបជាង 1:2<br>';
+ if(go&&ok){var bal=parseFloat($('bal').value),rk=parseFloat($('rk').value);var lot=bal*rk/100*(tier>=2?1:tier>=1?0.7:0.5)/(Math.abs(en-sl)*100);h+='RR 1:'+rr.toFixed(2)+' · Risk '+rk+'% → Lot <b>'+lot.toFixed(2)+'</b>'}
+ r.innerHTML=h+x+'<p class=warn>ត្រូវ confirm ជាមួយ HTF trend ហើយចៀសវាង trade ក្នុងពេលព័ត៌មានធំ លុះត្រាតែមានផែនការ។</p>';
+};
+render();
+</script>
+</body>
+</html>
